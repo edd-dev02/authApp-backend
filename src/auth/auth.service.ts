@@ -10,6 +10,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from './interfaces/jwt.payload';
+import { LoginResponse } from './interfaces/login-response';
+import { RegisterUserDto } from './dto';
 
 @Injectable()
 export class AuthService {
@@ -47,7 +49,18 @@ export class AuthService {
 
   }
 
-  async login(loginDto: LoginDto) {
+  async register(registerDto: RegisterUserDto): Promise<LoginResponse> {
+    const user = await this.create( registerDto );
+
+    console.log({user})
+
+    return {
+      user,
+      token: this.getJwtToken({ id: user._id })
+    }
+  }
+
+  async login(loginDto: LoginDto): Promise<LoginResponse> {
     const { email, password } = loginDto;
 
     const user = await this.userModel.findOne( {email} );
