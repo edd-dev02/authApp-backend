@@ -3,9 +3,10 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginDto } from './dto/login.dto';
-import { LoginResponse } from './interfaces/login-response';
+import type { LoginResponse } from './interfaces/login-response';
 import { RegisterUserDto } from './dto';
 import { AuthGuard } from './guards/auth.guard';
+import { User } from './entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -35,18 +36,24 @@ export class AuthController {
     return this.authService.findAll();
   }
 
+  @UseGuards( AuthGuard )
+  @Get('check-token')
+  checkToken( @Request() req: Request ): LoginResponse {
+    
+    const user = req['user'] as User;
+
+    return {
+
+      user,
+      token: this.authService.getJwtToken({ id: user._id }),
+
+    }
+
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.authService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateUserDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
-  }
 }
